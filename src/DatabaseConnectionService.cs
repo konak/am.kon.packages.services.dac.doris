@@ -47,7 +47,11 @@ public partial class DatabaseConnectionService
             _databaseConnections.Add(record.Key, new DataBase(record.Value, _cancellationToken));
         }
 
-        if (!_databaseConnections.TryGetValue(_dacConfig.DefaultConnection, out _defaultDatabase))
+        if (_databaseConnections.TryGetValue(_dacConfig.DefaultConnection, out var defaultDb))
+        {
+            _defaultDatabase = defaultDb;
+        }
+        else
         {
             throw new KeyNotFoundException($"Default connection '{_dacConfig.DefaultConnection}' is not configured for the Doris DAC service.");
         }
@@ -61,11 +65,11 @@ public partial class DatabaseConnectionService
         return Task.CompletedTask;
     }
 
-    public DataBase this[string key]
+    public DataBase? this[string key]
     {
         get
         {
-            if (_databaseConnections.TryGetValue(key, out DataBase database))
+            if (_databaseConnections.TryGetValue(key, out DataBase? database))
                 return database;
 
             return null;
